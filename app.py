@@ -41,36 +41,33 @@ if uploaded_file:
     # -------------------------------
     # Step 1: YOLO Prediction
     # -------------------------------
-    # -------------------------------
-# Step 1: YOLO Prediction
-# -------------------------------
-st.write("🔍 Detecting tumor type...")
-results = yolo_model.predict(img_np, conf=0.25, verbose=False)
-res = results[0]
+    st.write("🔍 Detecting tumor type...")
+    results = yolo_model.predict(img_np, conf=0.25, verbose=False)
+    res = results[0]
 
-# Extract detection info
-detections = []
-for box in res.boxes:
-    cls_id = int(box.cls)
-    conf = float(box.conf)
-    label = yolo_model.names[cls_id]
-    detections.append((label, conf))
+    # Extract detection info
+    detections = []
+    for box in res.boxes:
+        cls_id = int(box.cls)
+        conf = float(box.conf)
+        label = yolo_model.names[cls_id]
+        detections.append((label, conf))
 
-if detections:
-    tumor_type, confidence = detections[0]
-    st.success(f"✅ **Detected Tumor Type:** {tumor_type.capitalize()} ({confidence:.2f} confidence)")
+    if detections:
+        tumor_type, confidence = detections[0]
+        st.success(f"✅ **Detected Tumor Type:** {tumor_type.capitalize()} ({confidence:.2f} confidence)")
 
-    # 🖼️ Get YOLO annotated image (like results[0].show())
-    annotated_img = res.plot()  # this draws bounding boxes on the image
-    annotated_img_rgb = cv2.cvtColor(annotated_img, cv2.COLOR_BGR2RGB)
+        # 🖼️ Get YOLO annotated image (like results[0].show())
+        annotated_img = res.plot()  # draws bounding boxes
+        annotated_img_rgb = cv2.cvtColor(annotated_img, cv2.COLOR_BGR2RGB)
 
-    # Display YOLO output with bounding box
-    st.image(annotated_img_rgb, caption=f"YOLO Detection — {tumor_type.capitalize()} ({confidence:.2f})",
-             use_column_width=True)
-else:
-    st.warning("⚠️ No tumor detected. Try another image.")
-    st.stop()
-
+        # Display YOLO output with bounding box
+        st.image(annotated_img_rgb,
+                 caption=f"YOLO Detection — {tumor_type.capitalize()} ({confidence:.2f})",
+                 use_column_width=True)
+    else:
+        st.warning("⚠️ No tumor detected. Try another image.")
+        st.stop()
 
     # -------------------------------
     # Step 2: Grad-CAM Visualization
@@ -81,4 +78,5 @@ else:
     # Convert PIL image to RGB for display
     gradcam_np = np.array(gradcam_img)
 
-    st.image(gradcam_np, caption=f"Grad-CAM Heatmap for {tumor_type.capitalize()}", use_column_width=True)
+    st.image(gradcam_np, caption=f"Grad-CAM Heatmap for {tumor_type.capitalize()}",
+             use_column_width=True)
