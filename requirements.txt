@@ -1,10 +1,8 @@
-ultralytics==8.3.0
+streamlit
+ultralytics
 torch
 torchvision
+Pillow
+opencv-python-headless
 numpy
-opencv-python
-pillow
 matplotlib
-streamlit
-
-
