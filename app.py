@@ -72,11 +72,27 @@ if uploaded_file:
     # -------------------------------
     # Step 2: Grad-CAM Visualization
     # -------------------------------
+    # -------------------------------
+    # Step 2: Grad-CAM Visualization
+    # -------------------------------
     st.write("🧩 Generating Grad-CAM explainability map...")
+
+    # Add a slider to control transparency
+    alpha = st.slider("Adjust Explainability Intensity (Grad-CAM opacity)",
+                    min_value=0.0, max_value=1.0, value=0.5, step=0.05)
+
+    # Generate Grad-CAM
     gradcam_img = gradcam.generate(uploaded_file)
 
-    # Convert PIL image to RGB for display
-    gradcam_np = np.array(gradcam_img)
+    # Blend Grad-CAM with original image using alpha
+    gradcam_np = np.array(gradcam_img).astype(np.float32)
+    original_np = np.array(Image.open(uploaded_file).convert("RGB")).astype(np.float32)
 
-    st.image(gradcam_np, caption=f"Grad-CAM Heatmap for {tumor_type.capitalize()}",
-             use_container_width=True)
+    # Ensure same size
+    gradcam_np = cv2.resize(gradcam_np, (original_np.shape[1], original_np.shape[0]))
+
+    blended = cv2.addWeighted(gradcam_np / 255.0, alpha, original_np / 255.0, 1 - alpha, 0)
+    blended = np.uint8(blended * 255)
+
+    # Display adjustable Grad-CAM
+    st.image(blended, caption=f"Grad-CAM (Opacity: {alpha:.2f})", use_container_width=True)
