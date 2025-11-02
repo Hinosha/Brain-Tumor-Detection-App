@@ -79,4 +79,4 @@ if uploaded_file:
     gradcam_np = np.array(gradcam_img)
 
     st.image(gradcam_np, caption=f"Grad-CAM Heatmap for {tumor_type.capitalize()}",
-             use_column_width=True)
+             use_container_width=True)
