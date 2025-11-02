@@ -32,7 +32,7 @@ uploaded_file = st.file_uploader("📤 Upload an MRI image (JPG or PNG)", type=[
 
 if uploaded_file:
     # Display uploaded image
-    st.image(uploaded_file, caption="Uploaded MRI", use_column_width=True)
+    st.image(uploaded_file, caption="Uploaded MRI", use_container_width=True)
 
     # Convert to PIL + NumPy
     image = Image.open(uploaded_file).convert("RGB")
@@ -64,7 +64,7 @@ if uploaded_file:
         # Display YOLO output with bounding box
         st.image(annotated_img_rgb,
                  caption=f"YOLO Detection — {tumor_type.capitalize()} ({confidence:.2f})",
-                 use_column_width=True)
+                 use_container_width=True)
     else:
         st.warning("⚠️ No tumor detected. Try another image.")
         st.stop()
