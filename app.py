@@ -106,7 +106,8 @@ if uploaded_file:
     # Display adjustable Grad-CAM
     st.image(blended, caption=f"Grad-CAM (Opacity: {alpha:.2f})", use_container_width=True)
 
-from shap_yolo import YOLOSHAPExplainer
+from xai_utils.shap_yolo import YOLOSHAPExplainer
+
 import matplotlib.pyplot as plt
 import shap
 
