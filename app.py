@@ -119,63 +119,51 @@ if uploaded_file:
     # Display adjustable Grad-CAM
     st.image(blended, caption=f"Grad-CAM (Opacity: {alpha:.2f})", use_container_width=True)
 
-from xai_utils.shap_yolo import YOLOSHAPExplainer
-import matplotlib.pyplot as plt
-import shap
+    from xai_utils.shap_yolo import YOLOSHAPExplainer
+    import matplotlib.pyplot as plt
+    import shap
 
-if st.checkbox("🔍 Show SHAP Explanation"):
-    st.write("📊 Generating SHAP explanation...")
+    if st.checkbox("🔍 Show SHAP Explanation"):
+        st.write("📊 Generating SHAP explanation...")
 
-    background_file = st.file_uploader("📎 Upload a background (healthy) MRI image for SHAP", type=["jpg", "jpeg", "png"])
+        background_file = st.file_uploader("📎 Upload a background (healthy) MRI image for SHAP", type=["jpg", "jpeg", "png"])
 
-    if background_file is not None:
-        # Save both images to temp files
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as img_tmp, \
-             tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as bg_tmp:
+        if background_file is not None:
+            # Save both images to temp files
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as img_tmp, \
+                 tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as bg_tmp:
 
-            #image = Image.open(uploaded_file).convert("RGB")
-            image.save(img_tmp.name)
-            Image.open(background_file).convert("RGB").save(bg_tmp.name)
+                image.save(img_tmp.name)  # this will now work, image is defined above
+                Image.open(background_file).convert("RGB").save(bg_tmp.name)
 
-            temp_image_path = img_tmp.name
-            bg_image_path = bg_tmp.name
+                temp_image_path = img_tmp.name
+                bg_image_path = bg_tmp.name
 
-        with st.spinner("Explaining with SHAP..."):
-            explainer = YOLOSHAPExplainer("best.pt")
-            image_np, shap_mask = explainer.explain(
-                image_path=temp_image_path,
-                background_path=bg_image_path
-            )
+            with st.spinner("Explaining with SHAP..."):
+                explainer = YOLOSHAPExplainer("best.pt")
+                image_np, shap_mask = explainer.explain(
+                    image_path=temp_image_path,
+                    background_path=bg_image_path
+                )
 
-        # ✅ INSERT THE FIX HERE
-        import numpy as np
+            # ✅ Safety conversions before plotting
+            if not isinstance(image_np, np.ndarray):
+                image_np = np.array(image_np)
+            
+            if not isinstance(shap_mask, np.ndarray):
+                shap_mask = np.array(shap_mask)
 
-        # Ensure both inputs are NumPy arrays
-        if not isinstance(image_np, np.ndarray):
-            image_np = np.array(image_np)
-        
-        if not isinstance(shap_mask, np.ndarray):
-            shap_mask = np.array(shap_mask)
-        
-        # If grayscale, convert to 3 channels
-        if shap_mask.ndim == 2:
-            shap_mask = np.repeat(shap_mask[:, :, np.newaxis], 3, axis=2)
-        
-        # Normalize values to 0-1 if needed
-        if shap_mask.max() > 1:
-            shap_mask = shap_mask / 255.0
-        if image_np.max() > 1:
-            image_np = image_np / 255.0
-        
-        # Debug logs
-        print(f"image_np: dtype={image_np.dtype}, shape={image_np.shape}")
-        print(f"shap_mask: dtype={shap_mask.dtype}, shape={shap_mask.shape}")
+            if shap_mask.ndim == 2:
+                shap_mask = np.repeat(shap_mask[:, :, np.newaxis], 3, axis=2)
 
+            if shap_mask.max() > 1:
+                shap_mask = shap_mask / 255.0
+            if image_np.max() > 1:
+                image_np = image_np / 255.0
 
-        # ✅ Plot SHAP
-        fig, ax = plt.subplots()
-        shap.image_plot([shap_mask], [image_np])
-        st.pyplot(fig)
+            fig, ax = plt.subplots()
+            shap.image_plot([shap_mask], [image_np])
+            st.pyplot(fig)
 
-    else:
-        st.info("📥 Please upload a background (healthy) MRI image to compute SHAP.")
+        else:
+            st.info("📥 Please upload a background (healthy) MRI image to compute SHAP.")
