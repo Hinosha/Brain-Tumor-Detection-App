@@ -6,3 +6,6 @@ Pillow
 opencv-python-headless
 numpy
 matplotlib
+shap
+numba
+llvmlite
