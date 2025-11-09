@@ -163,6 +163,12 @@ if uploaded_file:
                 image_np = image_np / 255.0
         
             # ✅ PLOT correctly
+            # Blend SHAP mask over the image
+            overlay = (shap_mask * 0.6 + image_np * 0.4)
+            overlay = np.clip(overlay, 0, 1)  # Ensure valid pixel range
+            
+            # Plot using matplotlib
             fig, ax = plt.subplots()
-            shap.image_plot([shap_mask], [image_np])
+            ax.imshow(overlay)
+            ax.axis("off")
             st.pyplot(fig)
