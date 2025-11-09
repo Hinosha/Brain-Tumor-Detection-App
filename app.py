@@ -120,7 +120,6 @@ if st.checkbox("🔍 Show SHAP Explanation"):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as img_tmp, \
              tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as bg_tmp:
 
-            # Ensure image is defined
             image = Image.open(uploaded_file).convert("RGB")
             image.save(img_tmp.name)
             Image.open(background_file).convert("RGB").save(bg_tmp.name)
@@ -135,9 +134,27 @@ if st.checkbox("🔍 Show SHAP Explanation"):
                 background_path=bg_image_path
             )
 
+        # ✅ INSERT THE FIX HERE
+        import numpy as np
+
+        # Ensure numpy arrays
+        image_np = np.array(image_np).astype(np.float32)
+        shap_mask = np.array(shap_mask).astype(np.float32)
+
+        # Fix shape issues (if shap_mask is 2D)
+        if shap_mask.ndim == 2:
+            shap_mask = np.repeat(shap_mask[:, :, np.newaxis], 3, axis=2)
+
+        # Normalize shap mask if necessary
+        if shap_mask.max() > 1:
+            shap_mask = shap_mask / shap_mask.max()
+
         st.write("🧠 SHAP values (feature importance):")
+
+        # ✅ Plot SHAP
         fig, ax = plt.subplots()
         shap.image_plot([shap_mask], [image_np])
         st.pyplot(fig)
+
     else:
         st.info("📥 Please upload a background (healthy) MRI image to compute SHAP.")
