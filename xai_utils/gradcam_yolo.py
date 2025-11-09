@@ -51,7 +51,7 @@ class YOLOGradCAM:
         img_tensor.requires_grad = True
 
         # --- 2️⃣ Forward pass ---
-        outputs = self.model.model(img_tensor)
+        outputs = self.model.model.model(img_tensor)
         if isinstance(outputs, (list, tuple)):
             outputs = outputs[0]
 
