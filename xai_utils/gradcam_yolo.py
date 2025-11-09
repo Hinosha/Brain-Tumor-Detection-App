@@ -40,7 +40,7 @@ class YOLOGradCAM:
     def generate(self, image_path):
         """Generate Grad-CAM heatmap overlay for a given image."""
         # --- 1️⃣ Load & preprocess image ---
-        img = Image.open(image_path).convert("RGB")
+        img = Image.open(image_path).convert("RGB").resize((512, 512))
         img_np = np.array(img).astype(np.float32) / 255.0          # HWC, 0-1
         img_tensor = (
             torch.from_numpy(img_np)
