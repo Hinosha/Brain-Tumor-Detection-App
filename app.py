@@ -129,40 +129,40 @@ if uploaded_file:
         background_file = st.file_uploader("📎 Upload a background (healthy) MRI image for SHAP", type=["jpg", "jpeg", "png"])
 
         if background_file is not None:
-        # ✅ Load image again
-        image = Image.open(uploaded_file).convert("RGB")
-    
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as img_tmp, \
-             tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as bg_tmp:
-    
-            image.save(img_tmp.name)
-            Image.open(background_file).convert("RGB").save(bg_tmp.name)
-    
-            temp_image_path = img_tmp.name
-            bg_image_path = bg_tmp.name
-    
-        with st.spinner("Explaining with SHAP..."):
-            explainer = YOLOSHAPExplainer("best.pt")
-            image_np, shap_mask = explainer.explain(
-                image_path=temp_image_path,
-                background_path=bg_image_path
-            )
-    
-        # Ensure they're numpy arrays and normalized
-        if not isinstance(image_np, np.ndarray):
-            image_np = np.array(image_np)
-        if not isinstance(shap_mask, np.ndarray):
-            shap_mask = np.array(shap_mask)
-    
-        if shap_mask.ndim == 2:
-            shap_mask = np.repeat(shap_mask[:, :, np.newaxis], 3, axis=2)
-    
-        if shap_mask.max() > 1:
-            shap_mask = shap_mask / 255.0
-        if image_np.max() > 1:
-            image_np = image_np / 255.0
-    
-        # ✅ PLOT correctly
-        fig, ax = plt.subplots()
-        shap.image_plot([shap_mask], image_np)
-        st.pyplot(fig)
+            # ✅ Load image again
+            image = Image.open(uploaded_file).convert("RGB")
+        
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as img_tmp, \
+                 tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as bg_tmp:
+        
+                image.save(img_tmp.name)
+                Image.open(background_file).convert("RGB").save(bg_tmp.name)
+        
+                temp_image_path = img_tmp.name
+                bg_image_path = bg_tmp.name
+        
+            with st.spinner("Explaining with SHAP..."):
+                explainer = YOLOSHAPExplainer("best.pt")
+                image_np, shap_mask = explainer.explain(
+                    image_path=temp_image_path,
+                    background_path=bg_image_path
+                )
+        
+            # Ensure they're numpy arrays and normalized
+            if not isinstance(image_np, np.ndarray):
+                image_np = np.array(image_np)
+            if not isinstance(shap_mask, np.ndarray):
+                shap_mask = np.array(shap_mask)
+        
+            if shap_mask.ndim == 2:
+                shap_mask = np.repeat(shap_mask[:, :, np.newaxis], 3, axis=2)
+        
+            if shap_mask.max() > 1:
+                shap_mask = shap_mask / 255.0
+            if image_np.max() > 1:
+                image_np = image_np / 255.0
+        
+            # ✅ PLOT correctly
+            fig, ax = plt.subplots()
+            shap.image_plot([shap_mask], image_np)
+            st.pyplot(fig)
