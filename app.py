@@ -133,7 +133,7 @@ if st.checkbox("🔍 Show SHAP Explanation"):
         with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as img_tmp, \
              tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as bg_tmp:
 
-            image = Image.open(uploaded_file).convert("RGB")
+            #image = Image.open(uploaded_file).convert("RGB")
             image.save(img_tmp.name)
             Image.open(background_file).convert("RGB").save(bg_tmp.name)
 
