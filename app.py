@@ -164,5 +164,5 @@ if uploaded_file:
         
             # ✅ PLOT correctly
             fig, ax = plt.subplots()
-            shap.image_plot([shap_mask], image_np)
+            shap.image_plot([shap_mask], [image_np])
             st.pyplot(fig)
