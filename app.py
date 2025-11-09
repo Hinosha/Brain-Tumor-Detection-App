@@ -105,3 +105,18 @@ if uploaded_file:
 
     # Display adjustable Grad-CAM
     st.image(blended, caption=f"Grad-CAM (Opacity: {alpha:.2f})", use_container_width=True)
+
+from shap_yolo import YOLOSHAPExplainer
+import shap
+import matplotlib.pyplot as plt
+
+explainer = YOLOSHAPExplainer("path/to/best.pt")
+
+image_np, shap_mask = explainer.explain(
+    image_path="path/to/tumor_image.png",
+    background_path="path/to/background_image.png"
+)
+
+# Show SHAP overlay
+shap.image_plot([shap_mask], [image_np])
+
