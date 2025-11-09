@@ -81,8 +81,17 @@ if uploaded_file:
     alpha = st.slider("Adjust Explainability Intensity (Grad-CAM opacity)",
                     min_value=0.0, max_value=1.0, value=0.5, step=0.05)
 
+    import tempfile
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tmp:
+        image.save(tmp.name)           # Save PIL image to a real file
+        temp_image_path = tmp.name
+    
+    gradcam_img = gradcam.generate(temp_image_path)
+
+
     # Generate Grad-CAM
-    gradcam_img = gradcam.generate(uploaded_file)
+   # gradcam_img = gradcam.generate(uploaded_file)
 
     # Blend Grad-CAM with original image using alpha
     gradcam_np = np.array(gradcam_img).astype(np.float32)
