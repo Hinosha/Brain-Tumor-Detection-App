@@ -107,16 +107,37 @@ if uploaded_file:
     st.image(blended, caption=f"Grad-CAM (Opacity: {alpha:.2f})", use_container_width=True)
 
 from shap_yolo import YOLOSHAPExplainer
-import shap
 import matplotlib.pyplot as plt
+import shap
 
-explainer = YOLOSHAPExplainer("path/to/best.pt")
+# Optional: SHAP section toggle
+if st.checkbox("🔍 Show SHAP Explanation"):
+    st.write("📊 Generating SHAP explanation...")
 
-image_np, shap_mask = explainer.explain(
-    image_path="path/to/tumor_image.png",
-    background_path="path/to/background_image.png"
-)
+    # Upload a background image for SHAP baseline
+    background_file = st.file_uploader("📎 Upload a background (healthy) MRI image for SHAP", type=["jpg", "jpeg", "png"])
 
-# Show SHAP overlay
-shap.image_plot([shap_mask], [image_np])
+    if background_file is not None:
+        # Save both images to temp files
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as img_tmp, \
+             tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as bg_tmp:
+            image.save(img_tmp.name)
+            temp_image_path = img_tmp.name
 
+            Image.open(background_file).save(bg_tmp.name)
+            bg_image_path = bg_tmp.name
+
+        # Run SHAP
+        explainer = YOLOSHAPExplainer("best.pt")
+        image_np, shap_mask = explainer.explain(
+            image_path=temp_image_path,
+            background_path=bg_image_path
+        )
+
+        # Display SHAP explanation in Streamlit
+        st.write("🧠 SHAP values (feature importance):")
+        fig, ax = plt.subplots()
+        shap.image_plot([shap_mask], [image_np], show=False)
+        st.pyplot(fig)
+    else:
+        st.info("📥 Please upload a background (healthy) MRI image to compute SHAP.")
