@@ -137,19 +137,27 @@ if st.checkbox("🔍 Show SHAP Explanation"):
         # ✅ INSERT THE FIX HERE
         import numpy as np
 
-        # Ensure numpy arrays
-        image_np = np.array(image_np).astype(np.float32)
-        shap_mask = np.array(shap_mask).astype(np.float32)
-
-        # Fix shape issues (if shap_mask is 2D)
+        # Ensure both inputs are NumPy arrays
+        if not isinstance(image_np, np.ndarray):
+            image_np = np.array(image_np)
+        
+        if not isinstance(shap_mask, np.ndarray):
+            shap_mask = np.array(shap_mask)
+        
+        # If grayscale, convert to 3 channels
         if shap_mask.ndim == 2:
             shap_mask = np.repeat(shap_mask[:, :, np.newaxis], 3, axis=2)
-
-        # Normalize shap mask if necessary
+        
+        # Normalize values to 0-1 if needed
         if shap_mask.max() > 1:
-            shap_mask = shap_mask / shap_mask.max()
+            shap_mask = shap_mask / 255.0
+        if image_np.max() > 1:
+            image_np = image_np / 255.0
+        
+        # Debug logs
+        print(f"image_np: dtype={image_np.dtype}, shape={image_np.shape}")
+        print(f"shap_mask: dtype={shap_mask.dtype}, shape={shap_mask.shape}")
 
-        st.write("🧠 SHAP values (feature importance):")
 
         # ✅ Plot SHAP
         fig, ax = plt.subplots()
