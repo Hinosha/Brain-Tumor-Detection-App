@@ -6,6 +6,19 @@ from PIL import Image
 from ultralytics import YOLO
 from xai_utils.gradcam_yolo import YOLOGradCAM
 
+import tempfile
+import torch
+import shap
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image
+import streamlit as st
+from ultralytics import YOLO
+from xai_utils.gradcam_yolo import YOLOGradCAM
+from xai_utils.shap_yolo import YOLOSHAPExplainer
+
+
 # -------------------------------
 # Page configuration
 # -------------------------------
