@@ -39,10 +39,9 @@ class YOLOGradCAM:
             .to(next(self.model.model.parameters()).device)
         )
         img_tensor.requires_grad = True
-
-        # --- 2️⃣ Run prediction to trigger preprocessing ---
-        _ = self.model.predict(img_tensor, verbose=False)
-
+    
+        # ✅ Correct warm-up using image path, not tensor
+        _ = self.model.predict(image_path, verbose=False)
         # --- 3️⃣ Forward pass to get raw outputs ---
         with torch.enable_grad():
             outputs = self.model.model(img_tensor)
