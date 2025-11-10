@@ -168,7 +168,9 @@ if uploaded_file:
             # Normalize SHAP mask for display
             shap_gray = shap_mask.mean(axis=2)  # Convert to grayscale importance
             shap_norm = (shap_gray - shap_gray.min()) / (shap_gray.max() - shap_gray.min() + 1e-8)
-            
+
+            # NEW: amplify contrast
+            shap_norm = np.power(shap_norm, 0.5)  # Gamma correction (more contrast)
             # Apply color map (jet, inferno, plasma, etc.)
             shap_colormap = cm.jet(shap_norm)[:, :, :3]  # Drop alpha channel
 
