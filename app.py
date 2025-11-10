@@ -171,6 +171,10 @@ if uploaded_file:
             
             # Apply color map (jet, inferno, plasma, etc.)
             shap_colormap = cm.jet(shap_norm)[:, :, :3]  # Drop alpha channel
+
+            # Normalize input image
+            if image_np.max() > 1:
+                image_np = image_np / 255.0
             
             # Resize image_np if needed to match shap_colormap
             if image_np.shape[:2] != shap_colormap.shape[:2]:
