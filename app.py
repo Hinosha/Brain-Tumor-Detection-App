@@ -163,11 +163,24 @@ if uploaded_file:
                 image_np = image_np / 255.0
         
             # ✅ PLOT correctly
-            # Blend SHAP mask over the image
-            overlay = (shap_mask * 0.6 + image_np * 0.4)
-            overlay = np.clip(overlay, 0, 1)  # Ensure valid pixel range
+            import matplotlib.cm as cm
+
+            # Normalize SHAP mask for display
+            shap_gray = shap_mask.mean(axis=2)  # Convert to grayscale importance
+            shap_norm = (shap_gray - shap_gray.min()) / (shap_gray.max() - shap_gray.min() + 1e-8)
             
-            # Plot using matplotlib
+            # Apply color map (jet, inferno, plasma, etc.)
+            shap_colormap = cm.jet(shap_norm)[:, :, :3]  # Drop alpha channel
+            
+            # Resize image_np if needed to match shap_colormap
+            if image_np.shape[:2] != shap_colormap.shape[:2]:
+                shap_colormap = cv2.resize(shap_colormap, (image_np.shape[1], image_np.shape[0]))
+            
+            # Blend heatmap with original image
+            overlay = 0.5 * image_np + 0.5 * shap_colormap
+            overlay = np.clip(overlay, 0, 1)
+            
+            # Show final plot
             fig, ax = plt.subplots()
             ax.imshow(overlay)
             ax.axis("off")
