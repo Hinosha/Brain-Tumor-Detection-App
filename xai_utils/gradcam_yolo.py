@@ -48,7 +48,7 @@ class YOLOGradCAM:
 
         img_tensor.requires_grad = True
 
-        # --- 2️⃣ Forward pass directly to the model ---
+        # --- 2️⃣ Forward pass ---
         with torch.enable_grad():
             outputs = self.model.model(img_tensor)
 
