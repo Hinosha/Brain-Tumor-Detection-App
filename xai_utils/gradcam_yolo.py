@@ -1,3 +1,5 @@
+# xai_utils/gradcam_yolo.py
+
 import torch
 import cv2
 import numpy as np
@@ -22,7 +24,6 @@ class YOLOGradCAM:
         self._register_hooks()
 
     def _register_hooks(self):
-
         def forward_hook(module, input, output):
             self.activations = output.detach()
 
@@ -33,7 +34,6 @@ class YOLOGradCAM:
         self.target_layer.register_full_backward_hook(backward_hook)
 
     def generate(self, image_path):
-
         # --- 1️⃣ Load & preprocess ---
         img = Image.open(image_path).convert("RGB").resize((512, 512))
         img_np = np.array(img).astype(np.float32) / 255.0
@@ -45,13 +45,11 @@ class YOLOGradCAM:
             .float()
             .to(next(self.model.model.parameters()).device)
         )
-
         img_tensor.requires_grad = True
 
-        # --- 2️⃣ Forward pass ---
+        # --- 2️⃣ Forward pass directly to the model ---
         with torch.enable_grad():
             outputs = self.model.model(img_tensor)
-
             if isinstance(outputs, (list, tuple)):
                 outputs = outputs[0]
 
@@ -62,7 +60,6 @@ class YOLOGradCAM:
 
             if scores.numel() == 0:
                 raise ValueError("No detections.")
-
             score = scores.max()
             score.backward()
 
@@ -75,10 +72,8 @@ class YOLOGradCAM:
 
         heatmap = torch.mean(activations, dim=0).cpu().numpy()
         heatmap = np.maximum(heatmap, 0)
-
         heatmap = cv2.resize(heatmap, (512, 512))
         heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8)
-
         heatmap = np.uint8(255 * heatmap)
         heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
 
@@ -90,5 +85,4 @@ class YOLOGradCAM:
             0.5,
             0
         )
-
         return Image.fromarray(overlay)
